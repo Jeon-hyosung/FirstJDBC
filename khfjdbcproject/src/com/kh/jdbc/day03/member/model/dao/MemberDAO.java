@@ -1,5 +1,8 @@
 package com.kh.jdbc.day03.member.model.dao;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,10 +10,25 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import com.kh.jdbc.day03.member.model.vo.Member;
 
 public class MemberDAO {	
+	
+	private Properties prop;
+	
+	public MemberDAO() {
+		prop = new Properties();
+		try {
+			FileReader reader = new FileReader("resources/query.properties");
+			prop.load(reader);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * 전체 회원 정보 조회
 	 * @param conn
@@ -18,7 +36,7 @@ public class MemberDAO {
 	 */
 	public List<Member> selectAll(Connection conn){
 		List<Member> mList = null;
-		String sql = "SELECT * FROM MEMBER_TBL ORDER BY MEMBER_ID ASC";
+		String sql = prop.getProperty("selectAll");
 			try {
 				Statement stmt = conn.createStatement();
 				ResultSet rset = stmt.executeQuery(sql);
@@ -50,7 +68,7 @@ public class MemberDAO {
 	 */
 	public Member selectOneById(Connection conn, String memberId) {
 		Member member = null;
-		String sql = "SELECT * FROM MEMBER_TBL WHERE MEMBER_ID = ?";
+		String sql = prop.getProperty("selectOneById");
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, memberId);
@@ -82,7 +100,7 @@ public class MemberDAO {
 	 */
 	public List<Member> selectByName(Connection conn, String memberName) {
 		List<Member> mList = null;
-		String sql = "SELECT * FROM MEMBER_TBL WHERE MEMBER_NAME LIKE ?";
+		String sql = prop.getProperty("selectAllByName");
 		mList = new ArrayList<Member>();
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -117,7 +135,7 @@ public class MemberDAO {
 	 */
 	public int insertMember(Connection conn, Member member) {
 		int result = 0;
-		String sql = "INSERT INTO MEMBER_TBL VALUES(?,?,?,?,?,?,?,?,?,DEFAULT)";
+		String sql = prop.getProperty("insertMember");
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, member.getMemberId());
@@ -144,12 +162,7 @@ public class MemberDAO {
 	 */
 	public int updateMember(Connection conn, Member member) {
 		int result = 0;
-		String sql = "UPDATE MEMBER_TBL SET MEMBER_PWD = ?, "
-											+ "MEMBER_EMAIL = ?, "
-												+ "MEMBER_PHONE = ?, "
-													+ "MEMBER_ADDRESS = ?, "
-														+ "MEMBER_HOBBY = ? "
-															+ "WHERE MEMBER_ID = ?";
+		String sql = prop.getProperty("updateMember");
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, member.getMemberPwd());
@@ -172,7 +185,7 @@ public class MemberDAO {
 	 * @return
 	 */
 	public int deleteMember(Connection conn, String memberId) {
-		String sql = "DELETE FROM MEMBER_TBL WHERE MEMBER_ID = ?";
+		String sql = prop.getProperty("deleteMember");
 		int result = 0;
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);

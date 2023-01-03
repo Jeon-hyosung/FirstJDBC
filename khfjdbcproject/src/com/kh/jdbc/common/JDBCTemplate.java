@@ -1,32 +1,35 @@
 package com.kh.jdbc.common;
 
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class JDBCTemplate {
-
-	private static final String DRIVER_NAME = "oracle.jdbc.driver.OracleDriver";
-	private static final String URL = "jdbc:oracle:thin:@localhost:1521:xe";
-	private static final String USER = "STUDENT";
-	private static final String PASSWORD = "STUDENT";
 	
+	private static Properties prop;	
 	private static Connection conn;
 	
 	private JDBCTemplate() {}
 	
 	public static Connection getConnection() {
 		try {
+			prop = new Properties();
+			FileReader reader = new FileReader("resources/dev.properties");
+			prop.load(reader);
+			String url = prop.getProperty("url");
+			String user = prop.getProperty("user");
+			String password = prop.getProperty("password");
 			if(conn == null || conn.isClosed()) {
-				Class.forName(DRIVER_NAME);
-				conn = DriverManager.getConnection(URL, USER, PASSWORD);
+				Class.forName(prop.getProperty("driver"));
+				conn = DriverManager.getConnection(url, user, password);
 				conn.setAutoCommit(false); // 오토 커밋 해제
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		 
 		return conn;
 	}
 	// 커밋
